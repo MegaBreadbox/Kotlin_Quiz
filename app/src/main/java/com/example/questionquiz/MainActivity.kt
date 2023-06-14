@@ -4,6 +4,7 @@ import android.graphics.Paint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.questionquiz.ui.theme.QuestionQuizTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,8 +35,9 @@ class Questions<T>(
     val Question: String,
     //val questionList: List<String>,
     val Answer: T,
+    val AnswerExplanation: String
 )
-var userCorrect = false
+
 
 
 class MainActivity : ComponentActivity() {
@@ -56,15 +60,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun QuizLayout(modifier: Modifier = Modifier) {
     var currentState by remember { mutableStateOf(1) }
+    var userCorrect by remember{ mutableStateOf(false) }
     val q1Array = arrayOf(stringResource(R.string.compass_north), stringResource(R.string.compass_south), stringResource(R.string.compass_west), stringResource(R.string.compass_east))
     q1Array.shuffle()
-    val q1 = Questions(stringResource(R.string.question_one), stringResource(R.string.compass_south))
+    val q1 = Questions(stringResource(R.string.question_one), stringResource(R.string.compass_south), stringResource(R.string.question_one_explanation))
 
 
 
     when (currentState){
         1-> Question(q1.Question, q1.Answer, q1Array, {currentState++})
-       // 2-> Answer(q1.Answer,{currentState++})
+        2-> Answer(q1.Question, q1.AnswerExplanation, userCorrect, {currentState++})
     }
 }
 
@@ -82,14 +87,13 @@ fun Question(
     incrementState: () -> Unit,
     modifier: Modifier = Modifier
 ){
-
+    println(questionAnswer)
     fun buttonLogic(answer: String){
+        if(questionAnswer == answer) {
+            userCorrect.set(true)
+            println("true")
+        }
         incrementState
-        if(questionAnswer == answer)
-            println("True")
-            userCorrect = true
-
-
     }
     if(questionArray.size > 2){
         Column(
@@ -143,27 +147,90 @@ fun Question(
         }
     }
     else{
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = modifier
+                .fillMaxSize()
+        ) {
+            Text(
+                text = questionText,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(
+                modifier = modifier
+                    .padding(150.dp)
+            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp)
+            ) {
+                Button(onClick = { buttonLogic(questionArray[0]) }) {
 
+                    Text(
+                        text = questionArray[0],
+                        modifier = modifier
+                    )
+                }
+                Button(onClick = { buttonLogic(questionArray[1]) }) {
+                    Text(
+                        text = questionArray[1]
+                    )
+                }
+
+            }
+        }
     }
 
 }
 
 //Answer and question are gonna be very similar methods
-/*
+
 @Composable
-fun Answer(modifier: Modifier = Modifier){
-    Column(){
+fun Answer(
+    questionText: String,
+    questionAnswer: String,
+    answerCorrect: Boolean,
+    incrementState: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Column(
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .fillMaxSize()
+    ){
         Text(
             text = questionText
         )
-        Button(onClick = {incrementState}) {
+        if(answerCorrect){
             Text(
-                text = answerText
+                text = questionAnswer,
+                color = Color.Green
             )
+            Button(onClick = {incrementState}) {
+                Image(
+                    painter = painterResource(R.drawable.nice_work),
+                    contentDescription = stringResource(R.string.answer_is_correct)
+                )
+            }
+        }
+        else
+        {
+            Text(
+                text = questionAnswer,
+                color = Color.Red
+            )
+            Button(onClick = {incrementState}) {
+                Image(
+                    painter = painterResource(R.drawable.not_nice_work),
+                    contentDescription = stringResource(R.string.answer_is_not_correct)
+                )
+            }
         }
     }
 }
-*/
+
 @Composable
 fun End(modifier: Modifier = Modifier){
 
