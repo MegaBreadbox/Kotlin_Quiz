@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">QuestionQuiz</string>
+    <string name="compass_east">Compass.eAST</string>
+    <string name="compass_west">Compass.west</string>
+    <string name="compass_south">Compass.SOUTH</string>
+    <string name="compass_north">Compass.North</string>
+    <string name="question_one">What is the correct capitalization convention for an enum class called Compass?</string>
 </resources>
