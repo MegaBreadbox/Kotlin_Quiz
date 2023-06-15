@@ -68,7 +68,8 @@ fun QuizLayout(modifier: Modifier = Modifier) {
 
 
     when (currentState){
-        1-> Question(q1.Question, q1.Answer, q1Array, {currentState++})
+        1-> Question(q1.Question, q1.Answer, q1Array, { currentState++ },
+            { userCorrect = true }, { userCorrect = false })
         2-> Answer(q1.Question, q1.AnswerExplanation, userCorrect, {currentState++})
     }
 }
@@ -85,15 +86,23 @@ fun Question(
     questionAnswer: String,
     questionArray: Array<String>,
     incrementState: () -> Unit,
+    rightAnswer: () -> Unit,
+    wrongAnswer: () -> Unit,
     modifier: Modifier = Modifier
 ){
     println(questionAnswer)
     fun buttonLogic(answer: String){
         if(questionAnswer == answer) {
-            userCorrect.set(true)
-            println("true")
+            println("My treasure!")
+            rightAnswer
+            println("My treasure!")
+            incrementState
+            println("My treasure!")
         }
-        incrementState
+        else{
+            wrongAnswer
+            incrementState
+        }
     }
     if(questionArray.size > 2){
         Column(
