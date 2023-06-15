@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.questionquiz.ui.theme.QuestionQuizTheme
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun QuizLayout(modifier: Modifier = Modifier) {
     var currentState by remember { mutableStateOf(1) }
-    var userCorrect by remember{ mutableStateOf(false) }
+    var userCorrect by rememberSaveable{ mutableStateOf(false) }
     val q1Array = arrayOf(stringResource(R.string.compass_north), stringResource(R.string.compass_south), stringResource(R.string.compass_west), stringResource(R.string.compass_east))
     q1Array.shuffle()
     val q1 = Questions(stringResource(R.string.question_one), stringResource(R.string.compass_south), stringResource(R.string.question_one_explanation))
@@ -90,18 +91,17 @@ fun Question(
     wrongAnswer: () -> Unit,
     modifier: Modifier = Modifier
 ){
-    println(questionAnswer)
-    fun buttonLogic(answer: String){
-        if(questionAnswer == answer) {
-            println("My treasure!")
-            rightAnswer
-            println("My treasure!")
-            incrementState
-            println("My treasure!")
+    var userInput by remember{ mutableStateOf("") }
+
+    fun buttonLogic(){
+        println(userInput)
+        if(questionAnswer == userInput) {
+            incrementState()
+            rightAnswer()
         }
         else{
-            wrongAnswer
-            incrementState
+            incrementState()
+            wrongAnswer()
         }
     }
     if(questionArray.size > 2){
@@ -124,14 +124,15 @@ fun Question(
                     .fillMaxWidth()
                     .padding(bottom = 32.dp)
             ) {
-                Button(onClick = { buttonLogic(questionArray[0]) }) {
+                Button(onClick = { userInput = questionArray[0]; buttonLogic() }) {
 
                     Text(
                         text = questionArray[0],
+                        //maybe an if statement that compares text to a function above.
                         modifier = modifier
                     )
                 }
-                Button(onClick = { buttonLogic(questionArray[1]) }) {
+                Button(onClick =  { userInput = questionArray[1]; buttonLogic() } ) {
                     Text(
                         text = questionArray[1]
                     )
@@ -142,12 +143,12 @@ fun Question(
                 modifier = modifier
                     .fillMaxWidth()
             ) {
-                Button(onClick = { buttonLogic(questionArray[2]) }) {
+                Button(onClick = { userInput = questionArray[2]; buttonLogic() }) {
                     Text(
                         text = questionArray[2]
                     )
                 }
-                Button(onClick = { buttonLogic(questionArray[3]) }) {
+                Button(onClick =  { userInput = questionArray[3]; buttonLogic() }) {
                     Text(
                         text = questionArray[3]
                     )
@@ -175,14 +176,14 @@ fun Question(
                     .fillMaxWidth()
                     .padding(bottom = 32.dp)
             ) {
-                Button(onClick = { buttonLogic(questionArray[0]) }) {
+                Button(onClick = { userInput = questionArray[0]; buttonLogic() }) {
 
                     Text(
                         text = questionArray[0],
                         modifier = modifier
                     )
                 }
-                Button(onClick = { buttonLogic(questionArray[1]) }) {
+                Button(onClick = { userInput = questionArray[1]; buttonLogic() }) {
                     Text(
                         text = questionArray[1]
                     )
@@ -217,7 +218,7 @@ fun Answer(
                 text = questionAnswer,
                 color = Color.Green
             )
-            Button(onClick = {incrementState}) {
+            Button(onClick = incrementState) {
                 Image(
                     painter = painterResource(R.drawable.nice_work),
                     contentDescription = stringResource(R.string.answer_is_correct)
@@ -230,7 +231,7 @@ fun Answer(
                 text = questionAnswer,
                 color = Color.Red
             )
-            Button(onClick = {incrementState}) {
+            Button(onClick = incrementState) {
                 Image(
                     painter = painterResource(R.drawable.not_nice_work),
                     contentDescription = stringResource(R.string.answer_is_not_correct)
