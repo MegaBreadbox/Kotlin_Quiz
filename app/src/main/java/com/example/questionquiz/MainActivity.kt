@@ -68,8 +68,9 @@ fun QuizLayout(modifier: Modifier = Modifier) {
 
 
     when (currentState){
-        1-> Question(q1.Question, q1.Answer, q1Array, { currentState++ },
-            { userCorrect = true }, { userCorrect = false })
+        1-> Question(q1.Question, q1.Answer, q1Array,
+            {  currentState++ },
+            { userCorrect = false; currentState++ })
         2-> Answer(q1.Question, q1.AnswerExplanation, userCorrect, {currentState++})
     }
 }
@@ -85,23 +86,25 @@ fun Question(
     questionText: String,
     questionAnswer: String,
     questionArray: Array<String>,
-    incrementState: () -> Unit,
     rightAnswer: () -> Unit,
     wrongAnswer: () -> Unit,
     modifier: Modifier = Modifier
 ){
-    println(questionAnswer)
-    fun buttonLogic(answer: String){
-        if(questionAnswer == answer) {
+    var userAnswer by remember { mutableStateOf("") }
+
+
+
+    var buttonLogic:() -> Unit = {
+            println(userAnswer)
+            println(questionAnswer)
+        if(userAnswer == questionAnswer) {
             println("My treasure!")
             rightAnswer
             println("My treasure!")
-            incrementState
-            println("My treasure!")
         }
         else{
+            println("My treasure!")
             wrongAnswer
-            incrementState
         }
     }
     if(questionArray.size > 2){
@@ -124,34 +127,29 @@ fun Question(
                     .fillMaxWidth()
                     .padding(bottom = 32.dp)
             ) {
-                Button(onClick = { buttonLogic(questionArray[0]) }) {
+                QuestionButton(
+                    questionArray, 0, questionAnswer, buttonLogic,
+                    {userAnswer = questionArray[0]}
+                )
+                QuestionButton(
+                    questionArray, 1, questionAnswer, buttonLogic,
+                    {userAnswer = questionArray[1]}
+                )
 
-                    Text(
-                        text = questionArray[0],
-                        modifier = modifier
-                    )
-                }
-                Button(onClick = { buttonLogic(questionArray[1]) }) {
-                    Text(
-                        text = questionArray[1]
-                    )
-                }
             }
             Row(
                 horizontalArrangement = Arrangement.SpaceAround,
                 modifier = modifier
                     .fillMaxWidth()
             ) {
-                Button(onClick = { buttonLogic(questionArray[2]) }) {
-                    Text(
-                        text = questionArray[2]
-                    )
-                }
-                Button(onClick = { buttonLogic(questionArray[3]) }) {
-                    Text(
-                        text = questionArray[3]
-                    )
-                }
+                QuestionButton(
+                    questionArray, 2, questionAnswer, buttonLogic,
+                    {userAnswer = questionArray[2]}
+                )
+                QuestionButton(
+                    questionArray, 3, questionAnswer, buttonLogic,
+                    {userAnswer = questionArray[3]}
+                )
             }
         }
     }
@@ -175,23 +173,36 @@ fun Question(
                     .fillMaxWidth()
                     .padding(bottom = 32.dp)
             ) {
-                Button(onClick = { buttonLogic(questionArray[0]) }) {
-
-                    Text(
-                        text = questionArray[0],
-                        modifier = modifier
-                    )
-                }
-                Button(onClick = { buttonLogic(questionArray[1]) }) {
-                    Text(
-                        text = questionArray[1]
-                    )
-                }
+                QuestionButton(
+                    questionArray, 0, questionAnswer, buttonLogic,
+                    {userAnswer = questionArray[0]}
+                )
+                QuestionButton(
+                    questionArray, 1, questionAnswer, buttonLogic,
+                    {userAnswer = questionArray[1]}
+                )
 
             }
         }
     }
 
+}
+
+@Composable
+fun QuestionButton(
+    arrayOfQuestions: Array<String>,
+    arrayPosition: Int,
+    questionAnswer: String,
+    logicFunction: () -> Unit,
+    buttonContents:() -> Unit,
+    modifier: Modifier = Modifier
+){
+
+    Button(onClick =  {buttonContents; logicFunction}) {
+        Text(
+            text = arrayOfQuestions[arrayPosition]
+        )
+    }
 }
 
 //Answer and question are gonna be very similar methods
@@ -217,7 +228,7 @@ fun Answer(
                 text = questionAnswer,
                 color = Color.Green
             )
-            Button(onClick = {incrementState}) {
+            Button(onClick = incrementState) {
                 Image(
                     painter = painterResource(R.drawable.nice_work),
                     contentDescription = stringResource(R.string.answer_is_correct)
@@ -230,7 +241,7 @@ fun Answer(
                 text = questionAnswer,
                 color = Color.Red
             )
-            Button(onClick = {incrementState}) {
+            Button(onClick = incrementState) {
                 Image(
                     painter = painterResource(R.drawable.not_nice_work),
                     contentDescription = stringResource(R.string.answer_is_not_correct)
